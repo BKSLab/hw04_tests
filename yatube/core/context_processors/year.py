@@ -1,8 +1,7 @@
 import datetime as dt
-from typing import Any
 
 
-def year(requests: Any) -> dict[str, int]:
+def year(requests):
     """Добавляет переменную с текущим годом."""
     return {
         'year': int(dt.datetime.now().year),
