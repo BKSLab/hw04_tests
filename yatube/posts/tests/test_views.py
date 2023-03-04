@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
+from mixer.backend.django import mixer
+from testdata import wrap_testdata
 
 from posts.models import Group, Post
 
@@ -10,8 +12,8 @@ User = get_user_model()
 
 class PostPagesTests(TestCase):
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    @wrap_testdata
+    def setUpTestData(cls) -> None:
         cls.user_author = User.objects.create_user(username='author_post')
         cls.group = Group.objects.create(
             title='Тестовая группа',
@@ -26,23 +28,21 @@ class PostPagesTests(TestCase):
         cls.templates_pages_names = {
             reverse('posts:post_create'): 'posts/create_post.html',
             reverse(
-                'posts:post_edit', kwargs={"pk": cls.post.pk}
+                'posts:post_edit', kwargs={'pk': cls.post.pk}
             ): 'posts/create_post.html',
             reverse(
-                'posts:page_post', kwargs={"slug": cls.group.slug}
+                'posts:page_post', kwargs={'slug': cls.group.slug}
             ): 'posts/group_list.html',
             reverse('posts:h_page'): 'posts/index.html',
             reverse(
-                'posts:post_detail', kwargs={"pk": cls.post.pk}
+                'posts:post_detail', kwargs={'pk': cls.post.pk}
             ): 'posts/post_detail.html',
             reverse(
-                'posts:profile', kwargs={"username": cls.user_author}
+                'posts:profile', kwargs={'username': cls.user_author}
             ): 'posts/profile.html',
         }
-
-    def setUp(self):
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user_author)
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.user_author)
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -66,7 +66,7 @@ class PostPagesTests(TestCase):
         """В шаблон group_list.html передается правильный контекст"""
 
         response = self.authorized_client.get(
-            reverse('posts:page_post', kwargs={"slug": self.group.slug})
+            reverse('posts:page_post', kwargs={'slug': self.group.slug})
         )
         first_object = response.context['group']
         self.assertEqual(first_object.title, self.group.title)
@@ -77,7 +77,7 @@ class PostPagesTests(TestCase):
         """В шаблон profile.html передается правильный контекст"""
 
         response = self.authorized_client.get(
-            reverse('posts:profile', kwargs={"username": self.user_author})
+            reverse('posts:profile', kwargs={'username': self.user_author})
         )
         first_object = response.context['user_name']
         self.assertEqual(first_object, self.user_author)
@@ -86,7 +86,7 @@ class PostPagesTests(TestCase):
         """В шаблон post_detail.html передается правильный контекст"""
 
         response = self.authorized_client.get(
-            reverse('posts:post_detail', kwargs={"pk": self.post.pk})
+            reverse('posts:post_detail', kwargs={'pk': self.post.pk})
         )
         first_object = response.context['post']
         self.assertEqual(first_object.pk, self.post.pk)
@@ -114,7 +114,7 @@ class PostPagesTests(TestCase):
         """
 
         response = self.authorized_client.get(
-            reverse('posts:post_edit', kwargs={"pk": self.post.pk})
+            reverse('posts:post_edit', kwargs={'pk': self.post.pk})
         )
         first_object = response.context['post']
         self.assertEqual(first_object.pk, self.post.pk)
@@ -131,8 +131,8 @@ class PostPagesTests(TestCase):
 
 class GroupPostPagesTests(TestCase):
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    @wrap_testdata
+    def setUpTestData(cls) -> None:
         cls.author_from_group = User.objects.create_user(
             username='author_post_with_group'
         )
@@ -146,10 +146,8 @@ class GroupPostPagesTests(TestCase):
             text='Тестовый пост',
             group=cls.group,
         )
-
-    def setUp(self):
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.author_from_group)
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.author_from_group)
 
     def test_show_post_with_group_on_index_page(self):
         """Пост с группой показывается на главной странице"""
@@ -162,7 +160,7 @@ class GroupPostPagesTests(TestCase):
         """Пост с группой показывается на странице выбранной группы"""
 
         response = self.authorized_client.get(
-            reverse('posts:page_post', kwargs={"slug": self.group.slug})
+            reverse('posts:page_post', kwargs={'slug': self.group.slug})
         )
         posts_of_group = list(self.group.posts.all())
         self.assertEqual(list(response.context['page_obj']), posts_of_group)
@@ -172,7 +170,7 @@ class GroupPostPagesTests(TestCase):
 
         response = self.authorized_client.get(
             reverse(
-                'posts:profile', kwargs={"username": self.author_from_group}
+                'posts:profile', kwargs={'username': self.author_from_group}
             )
         )
         posts_of_group = list(self.author_from_group.posts.all())
@@ -180,9 +178,5 @@ class GroupPostPagesTests(TestCase):
 
     def test_do_not_show_post_with_group_on_another_group_page(self):
         """Не попал ли пост в группу, к которой он не относится"""
-        another_group = Group.objects.create(
-            title='Тестовая группа 2',
-            slug='test-slug-two',
-            description='Тестовое описание 2',
-        )
+        another_group = mixer.blend('posts.Group')
         self.assertNotEqual(self.post.group, another_group)

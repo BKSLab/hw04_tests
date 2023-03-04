@@ -16,7 +16,7 @@ class Group(models.Model):
         verbose_name_plural = 'группы'
 
     def __str__(self) -> str:
-        return self.title[:settings.SHOW_WORDS]
+        return self.title[: settings.SHOW_WORDS]
 
 
 class Post(models.Model):
@@ -45,7 +45,7 @@ class Post(models.Model):
         default_related_name = 'posts'
 
     def __str__(self) -> str:
-        return self.text[:settings.SHOW_WORDS]
+        return self.text[: settings.SHOW_WORDS]
 
     def get_absolute_url(self) -> str:
         return reverse("posts:post_detail", kwargs={"pk": self.pk})
