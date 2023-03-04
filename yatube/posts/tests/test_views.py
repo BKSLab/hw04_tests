@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from mixer.backend.django import mixer
-from testdata import wrap_testdata
 
 from posts.models import Group, Post
 
@@ -12,7 +11,6 @@ User = get_user_model()
 
 class PostPagesTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls) -> None:
         cls.user_author = User.objects.create_user(username='author_post')
         cls.group = Group.objects.create(
@@ -131,7 +129,6 @@ class PostPagesTests(TestCase):
 
 class GroupPostPagesTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls) -> None:
         cls.author_from_group = User.objects.create_user(
             username='author_post_with_group'

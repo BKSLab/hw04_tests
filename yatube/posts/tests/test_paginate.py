@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from mixer.backend.django import mixer
-from testdata import wrap_testdata
 
 User = get_user_model()
 
@@ -13,7 +12,6 @@ NUMBER_TEST_POSTS = 13
 
 class PaginatorViewsTest(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         cls.posts = mixer.cycle(NUMBER_TEST_POSTS).blend(
             'posts.Post',

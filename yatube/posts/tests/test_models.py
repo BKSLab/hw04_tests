@@ -2,14 +2,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from mixer.backend.django import mixer
-from testdata import wrap_testdata
 
 User = get_user_model()
 
 
 class PostModelTest(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         cls.group = mixer.blend('posts.Group')
         cls.post = mixer.blend('posts.Post')

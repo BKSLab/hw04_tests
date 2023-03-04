@@ -3,7 +3,6 @@ from http import HTTPStatus
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
-from testdata import wrap_testdata
 
 from posts.models import Group, Post
 
@@ -12,7 +11,6 @@ User = get_user_model()
 
 class PostFormTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls):
         cls.user_author = User.objects.create_user(username='author_post')
         cls.authorized_client = Client()

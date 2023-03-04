@@ -4,14 +4,12 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from mixer.backend.django import mixer
-from testdata import wrap_testdata
 
 User = get_user_model()
 
 
 class PostUrlsTests(TestCase):
     @classmethod
-    @wrap_testdata
     def setUpTestData(cls) -> None:
         cls.user, cls.user_author = mixer.cycle(2).blend(
             User, username=(name for name in ('user', 'kir'))
