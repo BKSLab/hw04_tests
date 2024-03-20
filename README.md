@@ -32,6 +32,7 @@
 ## Стэк технологии
 - Python: 3.9
 - Django 2.2.16
+- unittest
 
 ## Запуск тестов для проекта
 - python manage.py test
